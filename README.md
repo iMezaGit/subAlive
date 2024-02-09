@@ -40,13 +40,38 @@ The tools used in this project are:
   ![def2](/Images/3.png)
 
  Originally, I used the tool `httprobe` for this section. However, after testing the script, I concluded that `httprobe` did not include **alive** subdomains unless they returned a status code of `200 OK`. This meant that domains which were still alive but did not have a `200 OK` status were being ignored. These domains represent a potential attack surface and should not be overlooked.
- For this reason I created my own 'utility'. The function `status()` sends `GET` request to each subdamin provided using `curl` command. Based on the status code of the response categorizes each subdomain address and prints them with the appropriate color, these are: red for the 400 and 500 family
+ For this reason I created my own 'utility'. The function `status()` sends a `GET` request to each subdamin provided, using `curl` command. Based on the status code of the response categorizes each subdomain address and prints them with the appropriate color. These are: 
+ 
+ * Red - Classes 4xx and 5xx
+ * Yellow - Class 3xx
+ * Cyan - Classes 1xx and 2xx
+   
+And finally, stores the **alive** subdomains (regardless of the status code) in file called `alive_hosts.txt`, while the non-responsive subdomains go to a file called `dead_hosts.txt`.
+
+## Main function
   
   ![def3](/Images/4.png)
+
+The main function of the script, `main()`, is actually quite straightforward. In this section, it calls the three data-gathering functions I previously explained and stores the results into three separate variables:
+
+* crtHosts
+* assetHosts
+* subHosts
+
+I also kept the aesthetics of the output in mind. To achieve this, I color-coded the output and added a notice at the beginning of each line to indicate the progress of the process. Lastly, I included a counter to keep track of the number of hosts found with each tool.
+  
   
   ![def4](/Images/5.png)
+
+Lastly, using all the data gathered in the previous step, the main function creates a pre-report. This pre-report is a string that includes all the results, `$crtHosts\n$assetHosts\n$subHosts`, effectively concatenating the three strings. This is then piped to the `sort -u` command, which sorts the results alphabetically and eliminates duplicates. The pre-report by itself is quite useful already, but the subdomains in that list have not yet been tested. To perform this task and test each domain, the `status()` function is used, creating the two final reports `alive_hosts.txt` & `dead_hosts.txt`.
+
+All the previous steps would be useless if `main()` does not get executed. Therefore, I created a simple input validation with an error message if the user provides more than one input. Otherwise, it calls the `main()` function and executes the program.
+
+
   
 </details>
+
+------------
 
 ## Script proof of concept
 
